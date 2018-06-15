@@ -17,6 +17,22 @@ p1 = io.ports[":ctrl1:joypad:JOYPAD"]
 
 inputs = {"P1 Right", "P1 Left", "P1 Down", "P1 Up","P1 Start", "P1 Select", "B", "A"}
 
+local tileEnum = {
+    unloadTile = "?",
+    solidTile = "X",
+    freeTile = ".",
+    mario = "m"
+}
+
+function doesTableContain(table, val)
+    for _, value in ipairs(table) do
+        if value == val then
+            return true
+        end
+    end
+    return false
+end
+
 function printMatrix(matrix, w, h)
 	for i=0, h-1 do
 		s = ""
@@ -110,12 +126,12 @@ function getFocusArea(left_offset, right_offset)
 end
 
 
-MameCst.emu.register_frame(
-		function ()
+--MameCst.emu.register_frame(
+		function dqd()
 			print()
 			printFocus(mapFocus)
 		end
-)
+--)
 
 tilesStart = 0x0500
 tilesEnd = 0x069F
@@ -154,32 +170,65 @@ MameCst.emu.register_frame(
 		-- Add Mario
 		if not(marioTileY < 0 or marioTileY >= tilesH or marioTileX < 0) then
 			local focusMarioX = leftOffset+1
-			table.insert(mapFocus[marioTileY][focusMarioX], "m")
+			table.insert(mapFocus[marioTileY][focusMarioX], tileEnum.mario)
 		end
 
 		-- Add solid entities
 		local tileW2 = tilesW/2
 		for y=0, tilesH-1 do
 			for x = -leftOffset, rightOffset do
-				local offsetX = marioTileX + x
-				local dataToAdd = "?"
-				if (offsetX >= 0) then
-					local tileAddress = tilesStart + (y)*(tileW2) + (offsetX)
+				local offsetX = (marioTileX + x)%tilesW
+				local dataToAdd = tileEnum.unloadTile
+
+					local tileAddress = tilesStart + y*tileW2 + offsetX
 					if (offsetX >= tileW2) then
 						tileAddress = tileAddress + (tileW2) * (tilesH-1)
-					end
+                    end
 					local tileVal = MameCmd.readMemory(tileAddress)
 					if tileVal == 0 then
-						dataToAdd = "."
+						dataToAdd = tileEnum.freeTile
 					else
-						dataToAdd = "X"
+						dataToAdd = tileEnum.solidTile
 					end
-				end
 				table.insert(mapFocus[y][x+leftOffset], dataToAdd)
 			end
 		end
 
  	end
+)
+
+MameCst.emu.register_frame_done(
+    function()
+        local s = MameCst.screen
+
+        local squareSize = 4
+        local map = mapFocus
+        local h = #map
+        local w = #map[1]
+        local xOffset = 4
+        local yOffset = 4
+        for y=0, h do
+            for x =0, w do
+                local color = 0
+                local currentMapTiles = map[y][x]
+                if doesTableContain(currentMapTiles, tileEnum.solidTile) then
+                    color = 0xff000000
+                elseif doesTableContain(currentMapTiles, tileEnum.mario) then
+                    color = 0xffff0000
+                else
+                    color = 0xd0ffffff
+                end
+                s:draw_box(
+                        xOffset+x*squareSize,
+                        yOffset+y*squareSize,
+                        xOffset+x*squareSize+squareSize,
+                        yOffset+y*squareSize+squareSize,
+                        color,
+                        0xffffffff)
+            end
+        end
+
+    end
 )
 
 --[[
