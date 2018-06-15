@@ -27,6 +27,30 @@ function printMatrix(matrix, w, h)
 	end
 end
 
+function printTable(table, len)
+	s = ""
+	for i=0, len-1 do
+		s = s .. tostring(table[i]) .. " \t"
+	end
+	print(s)
+end
+
+function printFocus(mapFocus)
+	for i=0, #mapFocus do
+		s = ""
+		for j=0, #mapFocus[i] do
+			for k = 1, #mapFocus[i][j] do
+				if k ~= 1 then
+					s = s .. ", "
+				end
+				s = s .. tostring(mapFocus[i][j][k])
+			end
+			s = s  .. " \t"
+		end
+		print(s)
+	end
+end
+
 function printMap()
 	local marioX = math.floor(getMarioXInTile())
 	local marioY = math.floor(getMarioYInTile())
@@ -71,10 +95,25 @@ function getMarioYInTile()
 	return suby
 end
 
+function getFocusArea(left_offset, right_offset)
+	local mapFocus = {}
+	local marioXIdx = getMarioXInTile()
+	for y = 0, tilesH-1 do
+		local mapFocusLine = {}
+		for j = -left_offset, right_offset do
+			local xIdx = math.floor((marioXIdx + j ) % tilesW)
+			mapFocusLine[left_offset+j] = tilesSolid[y][xIdx]
+		end
+		mapFocus[y] = mapFocusLine
+	end
+	return mapFocus
+end
+
 
 MameCst.emu.register_frame(
 		function ()
-			printMap()
+			print()
+			printFocus(mapFocus)
 		end
 )
 
@@ -93,6 +132,57 @@ for i=0, tilesH-1 do
 	end
 end
 
+
+
+MameCst.emu.register_frame(
+	function()
+		local marioTileX = math.floor(getMarioXInTile())
+		local marioTileY = math.floor(getMarioYInTile())
+
+		local leftOffset = 6
+		local rightOffset = 6
+
+		mapFocus = {}
+		for y=0, tilesH-1 do
+			local mapFocusLine = {}
+			for x= 0, leftOffset+rightOffset do
+				mapFocusLine[x] = {}
+			end
+			mapFocus[y] = mapFocusLine
+		end
+
+		-- Add Mario
+		if not(marioTileY < 0 or marioTileY >= tilesH or marioTileX < 0) then
+			local focusMarioX = leftOffset+1
+			table.insert(mapFocus[marioTileY][focusMarioX], "m")
+		end
+
+		-- Add solid entities
+		local tileW2 = tilesW/2
+		for y=0, tilesH-1 do
+			for x = -leftOffset, rightOffset do
+				local offsetX = marioTileX + x
+				local dataToAdd = "?"
+				if (offsetX >= 0) then
+					local tileAddress = tilesStart + (y)*(tileW2) + (offsetX)
+					if (offsetX >= tileW2) then
+						tileAddress = tileAddress + (tileW2) * (tilesH-1)
+					end
+					local tileVal = MameCmd.readMemory(tileAddress)
+					if tileVal == 0 then
+						dataToAdd = "."
+					else
+						dataToAdd = "X"
+					end
+				end
+				table.insert(mapFocus[y][x+leftOffset], dataToAdd)
+			end
+		end
+
+ 	end
+)
+
+--[[
 MameCst.emu.register_frame(
     function () -- refresh the solid tile table
         for i=0, tilesH-1 do
@@ -109,5 +199,5 @@ MameCst.emu.register_frame(
 			end
 		end
     end
-)
+)]]
 
