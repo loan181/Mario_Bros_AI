@@ -36,9 +36,9 @@ function doesTableContain(table, val)
 end
 
 function printMatrix(matrix, w, h)
-	for i=0, h-1 do
+	for i=1, h do
 		s = ""
-		for j=0, w-1 do
+		for j=1, w do
 			s = s .. tostring(matrix[i][j]) .. " \t"
 		end
 		print(s)
@@ -47,16 +47,16 @@ end
 
 function printTable(table, len)
 	s = ""
-	for i=0, len-1 do
+	for i=1, len do
 		s = s .. tostring(table[i]) .. " \t"
 	end
 	print(s)
 end
 
 function printFocus(mapFocus)
-	for i=0, #mapFocus do
+	for i=1, #mapFocus do
 		s = ""
-		for j=0, #mapFocus[i] do
+		for j=1, #mapFocus[i] do
 			for k = 1, #mapFocus[i][j] do
 				if k ~= 1 then
 					s = s .. ", "
@@ -91,7 +91,7 @@ local function getEntityXInTile(x)
 end
 
 local function getEntityYInTile(y)
-	return (y - 16)/16
+	return y/16
 end
 
 local function getMarioX()
@@ -126,32 +126,32 @@ MameCst.emu.register_frame(
 		local leftOffset = 6
 		local rightOffset = 6
 
-		for y=0, tilesH-1 do
+		for y=1, tilesH do
 			local mapFocusLine = {}
-			for x= 0, leftOffset+rightOffset do
+			for x= 1, leftOffset+rightOffset+1 do
 				mapFocusLine[x] = {}
 			end
 			mapFocus[y] = mapFocusLine
 		end
 
 		-- Add Mario
-		if not(marioTileY < 0 or marioTileY >= tilesH or marioTileX < 0) then
-			local focusMarioX = leftOffset
+		if not(marioTileY <= 0 or marioTileY >= tilesH or marioTileX < 0) then
+			local focusMarioX = leftOffset+1
 			table.insert(mapFocus[marioTileY][focusMarioX], tileEnum.mario)
 		end
 
 		-- Add ennemies
-		for i = 0, 4 do
-			if MameCmd.readMemory(ennemyPresentAdress + i) == 1 then
-				local ennemyX = getEntityX(enemyXOnScreenAddress +i, enemyHerLevelPositionAddress +i)
-				local ennemyY = getEntityY(enemyYOnScreenAdress +i)
+		for i = 1, 5 do
+			if MameCmd.readMemory(ennemyPresentAdress + (i-1)) == 1 then
+				local ennemyX = getEntityX(enemyXOnScreenAddress +(i-1), enemyHerLevelPositionAddress +(i-1))
+				local ennemyY = getEntityY(enemyYOnScreenAdress +(i-1))
 				local ennemyXTile = math.floor(getEntityXInTile(ennemyX))
 				local ennemyYTile = math.floor(getEntityYInTile(ennemyY))
 
-				local focusEnnemyXTile = leftOffset+(ennemyXTile-marioTileX)
+				local focusEnnemyXTile = leftOffset+1+(ennemyXTile-marioTileX)
 
 				-- filter ennemies that are out of the view
-				if (focusEnnemyXTile < leftOffset+rightOffset and focusEnnemyXTile > 0 and ennemyYTile > 0 and ennemyYTile < tilesH) then
+				if (focusEnnemyXTile < leftOffset+2+rightOffset and focusEnnemyXTile > 0 and ennemyYTile > 0 and ennemyYTile < tilesH) then
 					table.insert(mapFocus[ennemyYTile][focusEnnemyXTile], tileEnum.enemy)
 				end
 			end
@@ -159,12 +159,12 @@ MameCst.emu.register_frame(
 
 		-- Add solid entities
 		local tileW2 = tilesW/2
-		for y=0, tilesH-1 do
+		for y=1, tilesH do
 			for x = -leftOffset, rightOffset do
 				local offsetX = (marioTileX + x)%tilesW
 				local dataToAdd = tileEnum.unloadTile
 
-					local tileAddress = tilesStart + y*tileW2 + offsetX
+					local tileAddress = tilesStart + (y-1)*tileW2 + offsetX
 					if (offsetX >= tileW2) then
 						tileAddress = tileAddress + (tileW2) * (tilesH-1)
                     end
@@ -174,7 +174,7 @@ MameCst.emu.register_frame(
 					else
 						dataToAdd = tileEnum.solidTile
 					end
-				table.insert(mapFocus[y][x+leftOffset], dataToAdd)
+				table.insert(mapFocus[y][x+1+leftOffset], dataToAdd)
 			end
 		end
 
@@ -187,16 +187,16 @@ MameCst.emu.register_frame_done(
 
         local squareSize = 4
         local map = mapFocus
-        if (map == {}) then
+        local h = #map
+        if (h == 0) then
             return
         end
-        local h = #map
         local w = #map[1]
         local xOffset = 4
         local yOffset = 4
 		local colorTransparency = 0xa0000000
-        for y=0, h do
-            for x =0, w do
+        for y=1, h do
+            for x =1, w do
                 local color = 0
                 local currentMapTiles = map[y][x]
                 if doesTableContain(currentMapTiles, tileEnum.solidTile) then
