@@ -21,8 +21,10 @@ local tileEnum = {
     unloadTile = "?",
     solidTile = "X",
     freeTile = ".",
-    mario = "m"
+    mario = "m",
+	ennemy = "e"
 }
+
 
 function doesTableContain(table, val)
     for _, value in ipairs(table) do
@@ -67,49 +69,49 @@ function printFocus(mapFocus)
 	end
 end
 
-function printMap()
-	local marioX = math.floor(getMarioXInTile())
-	local marioY = math.floor(getMarioYInTile())
-	for i=0, tilesH-1 do
-		s = ""
-		for j=0, tilesW-1 do
-			if (tilesSolid[i][j]) then
-				s = s .. "X"
-			else
-				if(i == marioY and j == marioX) then
-					s = s .. "m"
-				else
-					s = s .. " "
-				end
+local marioXOnScreenAddress = 0x86
+local marioHorLevelPositionAddress = 0x6D
+local marioYOnScreenAdress = 0x03B8
 
-			end
-		end
-		print(s)
-	end
+local ennemyXOnScreenAddress = 0x87
+local ennemyHorLevelPositionAddress = 0x6E
+local ennemyYOnScreenAdress = 0xCF
+local ennemyPresentAdress = 0xF
+
+local function getEntityX(xOnScreenAdress, HorLevelPoisitionAdress)
+    return MameCmd.readMemory(HorLevelPoisitionAdress) * 0x100 + MameCmd.readMemory(xOnScreenAdress)
+end
+
+local function getEntityY(yOnScreen)
+    return MameCmd.readMemory(yOnScreen)
+end
+
+local function getEntityXInTile(x)
+	return x % (32*16) / 16
+end
+
+local function getEntityYInTile(y)
+	return (y - 16)/16
 end
 
 function getMarioX()
-	local marioX = MameCmd.readMemory(0x6D) * 0x100 + MameCmd.readMemory(0x86)
-	return marioX
+	return getEntityX(marioXOnScreenAddress, marioHorLevelPositionAddress)
 end
 
 --- Prendre la round() de cette valeur pour avoir l'indice du x de Mario dans tilesSolid
 function getMarioXInTile()
-	local x = getMarioX()
-	local subx = x % (32*16) / 16
-	return subx
+	return getEntityXInTile(getMarioX())
 end
 
 function getMarioY()
-	local marioY = MameCmd.readMemory(0x03B8)
-	return marioY
+	return getEntityY(marioYOnScreenAdress)
 end
 
 function getMarioYInTile()
-	local y = getMarioY()
-	local suby = (y - 16)/16
-	return suby
+	return getEntityYInTile(getMarioY())
 end
+
+
 
 function getFocusArea(left_offset, right_offset)
 	local mapFocus = {}
@@ -127,7 +129,7 @@ end
 
 
 --MameCst.emu.register_frame(
-		function dqd()
+		function zae()
 			print()
 			printFocus(mapFocus)
 		end
@@ -169,8 +171,25 @@ MameCst.emu.register_frame(
 
 		-- Add Mario
 		if not(marioTileY < 0 or marioTileY >= tilesH or marioTileX < 0) then
-			local focusMarioX = leftOffset+1
+			local focusMarioX = leftOffset
 			table.insert(mapFocus[marioTileY][focusMarioX], tileEnum.mario)
+		end
+
+		-- Add ennemies
+		for i = 0, 4 do
+			if MameCmd.readMemory(ennemyPresentAdress + i) == 1 then
+				local ennemyX = getEntityX(ennemyXOnScreenAddress+i, ennemyHorLevelPositionAddress+i)
+				local ennemyY = getEntityY(ennemyYOnScreenAdress+i)
+				local ennemyXTile = math.floor(getEntityXInTile(ennemyX))
+				local ennemyYTile = math.floor(getEntityYInTile(ennemyY))
+
+				local focusEnnemyXTile = leftOffset+(ennemyXTile-marioTileX)
+
+				-- filter ennemies that are out of the view
+				if (focusEnnemyXTile < leftOffset+rightOffset and focusEnnemyXTile > 0 and ennemyYTile > 0 and ennemyYTile < tilesH) then
+					table.insert(mapFocus[ennemyYTile][focusEnnemyXTile], tileEnum.ennemy)
+				end
+			end
 		end
 
 		-- Add solid entities
@@ -203,21 +222,28 @@ MameCst.emu.register_frame_done(
 
         local squareSize = 4
         local map = mapFocus
+        if (map == nil) then
+            return
+        end
         local h = #map
         local w = #map[1]
         local xOffset = 4
         local yOffset = 4
+		local colorTransparency = 0xa0000000
         for y=0, h do
             for x =0, w do
                 local color = 0
                 local currentMapTiles = map[y][x]
                 if doesTableContain(currentMapTiles, tileEnum.solidTile) then
-                    color = 0xff000000
+                    color = 0x00000000
                 elseif doesTableContain(currentMapTiles, tileEnum.mario) then
-                    color = 0xffff0000
+                    color = 0x00ff0000
+				elseif doesTableContain(currentMapTiles, tileEnum.ennemy) then
+					color = 0x0000ff00
                 else
-                    color = 0xd0ffffff
+                    color = 0x00ffffff
                 end
+				color = color + colorTransparency
                 s:draw_box(
                         xOffset+x*squareSize,
                         yOffset+y*squareSize,
