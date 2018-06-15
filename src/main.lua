@@ -22,7 +22,7 @@ local tileEnum = {
     solidTile = "X",
     freeTile = ".",
     mario = "m",
-	ennemy = "e"
+    enemy = "e"
 }
 
 
@@ -73,9 +73,9 @@ local marioXOnScreenAddress = 0x86
 local marioHorLevelPositionAddress = 0x6D
 local marioYOnScreenAdress = 0x03B8
 
-local ennemyXOnScreenAddress = 0x87
-local ennemyHorLevelPositionAddress = 0x6E
-local ennemyYOnScreenAdress = 0xCF
+local enemyXOnScreenAddress = 0x87
+local enemyHerLevelPositionAddress = 0x6E
+local enemyYOnScreenAdress = 0xCF
 local ennemyPresentAdress = 0xF
 
 local function getEntityX(xOnScreenAdress, HorLevelPoisitionAdress)
@@ -94,64 +94,30 @@ local function getEntityYInTile(y)
 	return (y - 16)/16
 end
 
-function getMarioX()
+local function getMarioX()
 	return getEntityX(marioXOnScreenAddress, marioHorLevelPositionAddress)
 end
 
---- Prendre la round() de cette valeur pour avoir l'indice du x de Mario dans tilesSolid
-function getMarioXInTile()
+local function getMarioXInTile()
 	return getEntityXInTile(getMarioX())
 end
 
-function getMarioY()
+local function getMarioY()
 	return getEntityY(marioYOnScreenAdress)
 end
 
-function getMarioYInTile()
+local function getMarioYInTile()
 	return getEntityYInTile(getMarioY())
 end
 
-
-
-function getFocusArea(left_offset, right_offset)
-	local mapFocus = {}
-	local marioXIdx = getMarioXInTile()
-	for y = 0, tilesH-1 do
-		local mapFocusLine = {}
-		for j = -left_offset, right_offset do
-			local xIdx = math.floor((marioXIdx + j ) % tilesW)
-			mapFocusLine[left_offset+j] = tilesSolid[y][xIdx]
-		end
-		mapFocus[y] = mapFocusLine
-	end
-	return mapFocus
-end
-
-
---MameCst.emu.register_frame(
-		function zae()
-			print()
-			printFocus(mapFocus)
-		end
---)
-
-tilesStart = 0x0500
-tilesEnd = 0x069F
-tilesW = 32
-tilesH = 13
+local tilesStart = 0x0500
+local tilesW = 32
+local tilesH = 13
 -- Petite subtilité qu'il y à une coupure
 -- C'est divisé en 2 tableau de taille 16 x 13 mis de manière contigue
 
-tilesSolid = {}
-for i=0, tilesH-1 do
-	tilesSolid[i] = {}
-	for j=0, tilesW-1 do
-		tilesSolid[i][j] = nil
-	end
-end
 
-
-
+local mapFocus = {}
 MameCst.emu.register_frame(
 	function()
 		local marioTileX = math.floor(getMarioXInTile())
@@ -160,7 +126,6 @@ MameCst.emu.register_frame(
 		local leftOffset = 6
 		local rightOffset = 6
 
-		mapFocus = {}
 		for y=0, tilesH-1 do
 			local mapFocusLine = {}
 			for x= 0, leftOffset+rightOffset do
@@ -178,8 +143,8 @@ MameCst.emu.register_frame(
 		-- Add ennemies
 		for i = 0, 4 do
 			if MameCmd.readMemory(ennemyPresentAdress + i) == 1 then
-				local ennemyX = getEntityX(ennemyXOnScreenAddress+i, ennemyHorLevelPositionAddress+i)
-				local ennemyY = getEntityY(ennemyYOnScreenAdress+i)
+				local ennemyX = getEntityX(enemyXOnScreenAddress +i, enemyHerLevelPositionAddress +i)
+				local ennemyY = getEntityY(enemyYOnScreenAdress +i)
 				local ennemyXTile = math.floor(getEntityXInTile(ennemyX))
 				local ennemyYTile = math.floor(getEntityYInTile(ennemyY))
 
@@ -187,7 +152,7 @@ MameCst.emu.register_frame(
 
 				-- filter ennemies that are out of the view
 				if (focusEnnemyXTile < leftOffset+rightOffset and focusEnnemyXTile > 0 and ennemyYTile > 0 and ennemyYTile < tilesH) then
-					table.insert(mapFocus[ennemyYTile][focusEnnemyXTile], tileEnum.ennemy)
+					table.insert(mapFocus[ennemyYTile][focusEnnemyXTile], tileEnum.enemy)
 				end
 			end
 		end
@@ -222,7 +187,7 @@ MameCst.emu.register_frame_done(
 
         local squareSize = 4
         local map = mapFocus
-        if (map == nil) then
+        if (map == {}) then
             return
         end
         local h = #map
@@ -238,7 +203,7 @@ MameCst.emu.register_frame_done(
                     color = 0x00000000
                 elseif doesTableContain(currentMapTiles, tileEnum.mario) then
                     color = 0x00ff0000
-				elseif doesTableContain(currentMapTiles, tileEnum.ennemy) then
+				elseif doesTableContain(currentMapTiles, tileEnum.enemy) then
 					color = 0x0000ff00
                 else
                     color = 0x00ffffff
