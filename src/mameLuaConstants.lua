@@ -26,4 +26,10 @@ MameLuaCst.screen = screen
 local video = machine:video()
 MameLuaCst.video = video
 
+local io = machine:ioport()
+MameLuaCst.io = io
+
+local p1 = io.ports[":ctrl1:joypad:JOYPAD"]
+MameLuaCst.ioP1 = p1
+
 return MameLuaCst

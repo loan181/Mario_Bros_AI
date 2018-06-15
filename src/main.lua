@@ -8,14 +8,12 @@
 package.path = ";LUA\\src\\?.lua;" .. package.path
 
 --MarioBros = require("marioBros")
-MameCst = require("mameLuaConstants")
-MameCmd = require("mameCmd")
+local MameCst = require("mameLuaConstants")
+local MameCmd = require("mameCmd")
+
+local inputs = {"P1 Right", "P1 Left", "P1 Down", "P1 Up","P1 Start", "P1 Select", "B", "A"}
 
 
-io = manager:machine():ioport()
-p1 = io.ports[":ctrl1:joypad:JOYPAD"]
-
-inputs = {"P1 Right", "P1 Left", "P1 Down", "P1 Up","P1 Start", "P1 Select", "B", "A"}
 
 local tileEnum = {
     unloadTile = "?",
@@ -185,40 +183,74 @@ MameCst.emu.register_frame_done(
     function()
         local s = MameCst.screen
 
-        local squareSize = 4
-        local map = mapFocus
-        local h = #map
-        if (h == 0) then
-            return
-        end
-        local w = #map[1]
-        local xOffset = 4
-        local yOffset = 4
-		local colorTransparency = 0xa0000000
-        for y=1, h do
-            for x =1, w do
-                local color = 0
-                local currentMapTiles = map[y][x]
-                if doesTableContain(currentMapTiles, tileEnum.solidTile) then
-                    color = 0x00000000
-                elseif doesTableContain(currentMapTiles, tileEnum.mario) then
-                    color = 0x00ff0000
-				elseif doesTableContain(currentMapTiles, tileEnum.enemy) then
-					color = 0x0000ff00
-                else
-                    color = 0x00ffffff
+        local function drawMap()
+
+            local squareSize = 4
+            local map = mapFocus
+            local h = #map
+            if (h == 0) then
+                return
+            end
+            local w = #map[1]
+            local xOffset = 4
+            local yOffset = 4
+            local colorTransparency = 0xa0000000
+            for y=1, h do
+                for x =1, w do
+                    local color = 0
+                    local currentMapTiles = map[y][x]
+                    if doesTableContain(currentMapTiles, tileEnum.solidTile) then
+                        color = 0x00000000
+                    elseif doesTableContain(currentMapTiles, tileEnum.mario) then
+                        color = 0x00ff0000
+                    elseif doesTableContain(currentMapTiles, tileEnum.enemy) then
+                        color = 0x0000ff00
+                    else
+                        color = 0x00ffffff
+                    end
+                    color = color + colorTransparency
+                    s:draw_box(
+                            xOffset+x*squareSize,
+                            yOffset+y*squareSize,
+                            xOffset+x*squareSize+squareSize,
+                            yOffset+y*squareSize+squareSize,
+                            color,
+                            0xffffffff)
                 end
-				color = color + colorTransparency
-                s:draw_box(
-                        xOffset+x*squareSize,
-                        yOffset+y*squareSize,
-                        xOffset+x*squareSize+squareSize,
-                        yOffset+y*squareSize+squareSize,
-                        color,
-                        0xffffffff)
             end
         end
+        drawMap()
 
+
+        local function drawInputs()
+            local xOffset = 120
+            local yOffset = 4
+            local squareSize = 4
+            local space = 2
+
+			local currentPressInput = MameCst.ioP1:read()
+
+            for y = 1, #inputs do
+				local bitVal = (2^(#inputs-y))
+				local isPressed = currentPressInput & bitVal == bitVal
+                local yRealOffset = yOffset+y*space+y*squareSize
+
+				local boxColor = 0x80ffffff
+				if isPressed then
+					boxColor = 0xcc000000
+				end
+                s:draw_box(xOffset,
+                        yRealOffset,
+                        xOffset+squareSize,
+                        yRealOffset+squareSize,
+						boxColor,
+                        0xccffffff)
+                s:draw_text(xOffset+squareSize+space+0.5, yRealOffset-2, inputs[y], 0xff000000)
+                s:draw_text(xOffset+squareSize+space, yRealOffset-2, inputs[y])
+            end
+
+        end
+        drawInputs()
     end
 )
 
