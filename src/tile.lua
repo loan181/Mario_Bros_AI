@@ -9,7 +9,7 @@ tileEnum = {
     enemy = "e"
 }
 
---- Default constructor (no argument)
+--- Constuctor
 Tile = class(function(this, screen, x, y, size)
     this.content = {}
 
@@ -35,7 +35,7 @@ function Tile:add(tile)
     table.insert(self.content, tile)
 end
 
---- Check wherver the tile contain a tile value
+--- Check wherever the tile contain a tile value
 function Tile:contains(tileVal)
     for _, value in ipairs(self.content) do
         if value == tileVal then
