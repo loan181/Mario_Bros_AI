@@ -10,8 +10,13 @@ tileEnum = {
 }
 
 --- Default constructor (no argument)
-Tile = class(function(this)
+Tile = class(function(this, screen, x, y, size)
     this.content = {}
+
+    this.drawScreen = screen
+    this.drawX = x
+    this.drawY = y
+    this.drawSize = size
 end)
 
 function Tile:printIt()
@@ -41,7 +46,10 @@ function Tile:contains(tileVal)
 end
 
 --- Draw the tile on the given screen
-function Tile:draw(screen, x, y, size)
+function Tile:draw()
+    if self.drawScreen == nil then
+        return
+    end
     local color = 0xddffffff
     local colorTransparency = 0xa0000000
 
@@ -56,15 +64,22 @@ function Tile:draw(screen, x, y, size)
     end
     color = color + colorTransparency
 
-    screen:draw_box(
-            x,
-            y,
-            x+size,
-            y+size,
+    self.drawScreen:draw_box(
+            self.drawX,
+            self.drawY,
+            self.drawX+self.drawSize,
+            self.drawY+self.drawSize,
             color,
             0xffffffff)
 end
 
+--- get the middle point of the tile
+function Tile:getDrawMiddle()
+    return {
+        x = self.drawX + self.drawSize/2,
+        y = self.drawY + self.drawSize/2
+    }
+end
 
 function Tile:__tostring()
     local ret = ""

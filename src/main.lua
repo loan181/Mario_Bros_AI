@@ -101,13 +101,24 @@ local tilesH = 13
 -- Petite subtilité qu'il y à une coupure
 -- C'est divisé en 2 tableau de taille 16 x 13 mis de manière contigue
 
+
+local squareSize = 4
+local xOffset = 4
+local yOffset = 4
+
 local leftOffset = 6
 local rightOffset = 6
 local mapFocus = {}
 for y=1, tilesH do
 	local mapFocusLine = {}
 	for x= 1, leftOffset+rightOffset+1 do
-		mapFocusLine[x] = Tile()
+		local tile = Tile(
+				MameCst.screen,
+				xOffset+(x-1)*squareSize,
+				yOffset+(y-1)*squareSize,
+				squareSize
+		)
+		mapFocusLine[x] = tile
 	end
 	mapFocus[y] = mapFocusLine
 end
@@ -184,8 +195,9 @@ MameCst.emu.register_frame_done(
             local yOffset = 4
             for y=1, h do
                 for x =1, w do
-					map[y][x]:draw(s, xOffset+(x-1)*squareSize, yOffset+(y-1)*squareSize, squareSize)
-                end
+					--map[y][x]:draw(s, xOffset+(x-1)*squareSize, yOffset+(y-1)*squareSize, squareSize)
+                	map[y][x]:draw()
+				end
             end
         end
         drawMap()
