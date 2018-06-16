@@ -10,18 +10,11 @@ package.path = ";LUA\\src\\?.lua;" .. package.path
 --MarioBros = require("marioBros")
 local MameCst = require("mameLuaConstants")
 local MameCmd = require("mameCmd")
+require("tile")
 
 local inputs = {"P1 Right", "P1 Left", "P1 Down", "P1 Up","P1 Start", "P1 Select", "B", "A"}
 
 
-
-local tileEnum = {
-    unloadTile = "?",
-    solidTile = "X",
-    freeTile = ".",
-    mario = "m",
-    enemy = "e"
-}
 
 
 function doesTableContain(table, val)
@@ -55,13 +48,7 @@ function printFocus(mapFocus)
 	for i=1, #mapFocus do
 		s = ""
 		for j=1, #mapFocus[i] do
-			for k = 1, #mapFocus[i][j] do
-				if k ~= 1 then
-					s = s .. ", "
-				end
-				s = s .. tostring(mapFocus[i][j][k])
-			end
-			s = s  .. " \t"
+			s = s .. tostring(mapFocus[i][j]) .. "\t"
 		end
 		print(s)
 	end
@@ -114,28 +101,33 @@ local tilesH = 13
 -- Petite subtilité qu'il y à une coupure
 -- C'est divisé en 2 tableau de taille 16 x 13 mis de manière contigue
 
-
+local leftOffset = 6
+local rightOffset = 6
 local mapFocus = {}
+for y=1, tilesH do
+	local mapFocusLine = {}
+	for x= 1, leftOffset+rightOffset+1 do
+		mapFocusLine[x] = Tile()
+	end
+	mapFocus[y] = mapFocusLine
+end
+
+
 MameCst.emu.register_frame(
 	function()
 		local marioTileX = math.floor(getMarioXInTile())
 		local marioTileY = math.floor(getMarioYInTile())
 
-		local leftOffset = 6
-		local rightOffset = 6
-
 		for y=1, tilesH do
-			local mapFocusLine = {}
 			for x= 1, leftOffset+rightOffset+1 do
-				mapFocusLine[x] = {}
+				mapFocus[y][x]:reset()
 			end
-			mapFocus[y] = mapFocusLine
 		end
 
 		-- Add Mario
 		if not(marioTileY <= 0 or marioTileY >= tilesH or marioTileX < 0) then
 			local focusMarioX = leftOffset+1
-			table.insert(mapFocus[marioTileY][focusMarioX], tileEnum.mario)
+			mapFocus[marioTileY][focusMarioX]:add(tileEnum.mario)
 		end
 
 		-- Add ennemies
@@ -150,7 +142,7 @@ MameCst.emu.register_frame(
 
 				-- filter ennemies that are out of the view
 				if (focusEnnemyXTile < leftOffset+2+rightOffset and focusEnnemyXTile > 0 and ennemyYTile > 0 and ennemyYTile < tilesH) then
-					table.insert(mapFocus[ennemyYTile][focusEnnemyXTile], tileEnum.enemy)
+					mapFocus[ennemyYTile][focusEnnemyXTile]:add(tileEnum.enemy)
 				end
 			end
 		end
@@ -172,10 +164,9 @@ MameCst.emu.register_frame(
 					else
 						dataToAdd = tileEnum.solidTile
 					end
-				table.insert(mapFocus[y][x+1+leftOffset], dataToAdd)
+				mapFocus[y][x+1+leftOffset]:add(dataToAdd)
 			end
 		end
-
  	end
 )
 
@@ -188,34 +179,12 @@ MameCst.emu.register_frame_done(
             local squareSize = 4
             local map = mapFocus
             local h = #map
-            if (h == 0) then
-                return
-            end
             local w = #map[1]
             local xOffset = 4
             local yOffset = 4
-            local colorTransparency = 0xa0000000
             for y=1, h do
                 for x =1, w do
-                    local color = 0
-                    local currentMapTiles = map[y][x]
-                    if doesTableContain(currentMapTiles, tileEnum.solidTile) then
-                        color = 0x00000000
-                    elseif doesTableContain(currentMapTiles, tileEnum.mario) then
-                        color = 0x00ff0000
-                    elseif doesTableContain(currentMapTiles, tileEnum.enemy) then
-                        color = 0x0000ff00
-                    else
-                        color = 0x00ffffff
-                    end
-                    color = color + colorTransparency
-                    s:draw_box(
-                            xOffset+x*squareSize,
-                            yOffset+y*squareSize,
-                            xOffset+x*squareSize+squareSize,
-                            yOffset+y*squareSize+squareSize,
-                            color,
-                            0xffffffff)
+					map[y][x]:draw(s, xOffset+(x-1)*squareSize, yOffset+(y-1)*squareSize, squareSize)
                 end
             end
         end
