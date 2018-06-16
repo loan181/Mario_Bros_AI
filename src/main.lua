@@ -124,23 +124,30 @@ for y = 1, tilesH do
 end
 
 
+local function resetMap(map)
+    for y=1, #map do
+        for x =1, #map[y] do
+            map[y][x]:reset()
+        end
+    end
+end
+
+local function addMario(map, leftOffset, marioTileY)
+    -- Add Mario
+    if not(marioTileY <= 0 or marioTileY >= #map) then
+        local focusMarioX = leftOffset+1
+        map[marioTileY][focusMarioX]:add(tileEnum.mario)
+    end
+end
 
 MameCst.emu.register_frame(
 	function()
 		local marioTileX = math.floor(getMarioXInTile())
 		local marioTileY = math.floor(getMarioYInTile())
 
-		for y=1, tilesH do
-			for x= 1, leftOffset+rightOffset+1 do
-				mapFocus[y][x]:reset()
-			end
-		end
+        resetMap(mapFocus)
 
-		-- Add Mario
-		if not(marioTileY <= 0 or marioTileY >= tilesH or marioTileX < 0) then
-			local focusMarioX = leftOffset+1
-			mapFocus[marioTileY][focusMarioX]:add(tileEnum.mario)
-		end
+        addMario(mapFocus, leftOffset, marioTileY)
 
 		-- Add ennemies
 		for i = 1, 5 do
@@ -182,18 +189,20 @@ MameCst.emu.register_frame(
  	end
 )
 
+local function drawMap()
+    local map = mapFocus
+    for y=1, #map do
+        for x =1, #map[y] do
+            map[y][x]:draw()
+        end
+    end
+end
+
 MameCst.emu.register_frame_done(
     function()
         local s = MameCst.screen
 
-        local function drawMap()
-            local map = mapFocus
-            for y=1, #map do
-                for x =1, #map[y] do
-                	map[y][x]:draw()
-				end
-            end
-        end
+
         drawMap()
 
 
