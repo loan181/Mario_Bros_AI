@@ -192,7 +192,7 @@ MameCst.emu.register_frame(
 local function drawMap()
     local map = mapFocus
     for y=1, #map do
-        for x =1, #map[y] do
+        for x=1, #map[y] do
             map[y][x]:draw()
         end
     end
@@ -201,7 +201,6 @@ end
 MameCst.emu.register_frame_done(
     function()
         local s = MameCst.screen
-
 
         drawMap()
 
