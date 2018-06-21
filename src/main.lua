@@ -15,10 +15,7 @@ require("inputs")
 require("creature")
 require("neuron")
 
-local inputs = {"P1 Right", "P1 Left", "P1 Down", "P1 Up","P1 Start", "P1 Select", "B", "A"}
-
-
-
+MameCst.machine:load("start")
 
 function doesTableContain(table, val)
     for _, value in ipairs(table) do
@@ -203,17 +200,23 @@ end
 
 local inputsManager = Inputs(MameCst.screen, 120, 4, 4, 2, MameCst.ioP1)
 
-local neuron = Neuron(mapFocus[12][10], inputsManager, 1)
-local neuron2 = Neuron(mapFocus[8][10], inputsManager, 5)
+local neuron = Neuron(mapFocus, 10, 12, tileEnum.solidTile, inputsManager, 1, MameCst.ioP1)
+local neuron2 = Neuron(mapFocus, 10, 8, tileEnum.solidTile, inputsManager, 8, MameCst.ioP1)
+local neuron3 = Neuron(mapFocus, 8, 10, tileEnum.solidTile, inputsManager, 8, MameCst.ioP1)
+local creature = Creature(MameCst.screen, {neuron, neuron2,neuron3}, MameCst.ioP1)
 
+MameCst.emu.register_frame(
+		function()
+			creature:updateNeurons()
+		end
+)
 
 MameCst.emu.register_frame_done(
     function()
         drawMap()
 		inputsManager:draw()
-		neuron:draw(MameCst.screen)
-		neuron2:draw(MameCst.screen)
-    end
+		creature:draw()
+	end
 )
 
 --[[

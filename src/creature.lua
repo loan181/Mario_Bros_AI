@@ -6,10 +6,22 @@
 
 require("class")
 
-Creature = class(function(this, screen, neurons)
+Creature = class(function(this, screen, neurons, p1)
     this.drawScreen = screen
-    this.neurons = table.clone(neurons)
+    this.neurons = neurons -- Make a copy ?
+    this.p1 = p1
 end)
+
+function Creature:updateNeurons()
+    -- Update all input to unpressed
+    for _, v in pairs(inputsNes) do
+        self.p1.fields[v]:set_value(0)
+    end
+
+    for _, v in pairs(self.neurons) do
+        v:check()
+    end
+end
 
 function Creature:draw()
     for _, v in pairs(self.neurons) do

@@ -6,24 +6,46 @@
 
 require("class")
 
-Neuron = class(function(this, tile, inputsManager, inputIdx)
-    this.tile = tile
+Neuron = class(function(this, map, tileMapX, tileMapY, tileContentExpect, inputsManager, inputIdx, p1Ports)
+    this.map = map
+    this.tileMapX = tileMapX
+    this.tileMapY = tileMapY
+    this.tileContentExpect = tileContentExpect
+
     this.inputMan = inputsManager
     this.inputIdx = inputIdx
+
+    this.p1Ports = p1Ports
+    this.isActive = false
 end)
 
+function Neuron:check()
+    self.isActive = false
+    if (self.map[self.tileMapY][self.tileMapX]:contains(self.tileContentExpect)) then
+        self.p1Ports.fields[inputsNes[self.inputIdx]]:set_value(1)
+        self.isActive = true
+    end
+end
+
 function Neuron:draw(screen)
-    local tileX = self.tile:getDrawCenterX()
-    local tileY = self.tile:getDrawCenterY()
+    local tile = self.map[self.tileMapY][self.tileMapX]
+    local tileX = tile:getDrawCenterX()
+    local tileY = tile:getDrawCenterY()
 
     local inputX = self.inputMan:getDrawCenterX(self.inputIdx)
     local inputY = self.inputMan:getDrawCenterY(self.inputIdx)
 
-    screen:draw_line(tileX, tileY, inputX, inputY, 0xffffffff)
+
+    local lineColor = 0x7fffffff
+    if (self.isActive) then
+        lineColor = lineColor + 0x5f000000
+    end
+
+    screen:draw_line(tileX, tileY, inputX, inputY, lineColor)
 end
 
 function Neuron:__tostring()
     local ret = ""
-    ret = ret .. "<" .. self.tile .. ", " .. self.input .. ">"
+    ret = ret .. "<" .. self.tileContentExpect .. " (" .. self.tileMapX .. ", " .. self.tileMapY .. "), " .. self.inputIdx .. ">"
     return ret
 end
