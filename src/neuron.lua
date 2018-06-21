@@ -7,18 +7,25 @@
 require("class")
 
 Neuron = class(function(this, map, tileMapX, tileMapY, tileContentExpect, inputsManager, inputIdx, p1Ports)
+    --- The map
     this.map = map
+    --- The tile x position based on map
     this.tileMapX = tileMapX
     this.tileMapY = tileMapY
+    --- The tile which is expected at (tileMapX, tileMapY) position to activate the input
     this.tileContentExpect = tileContentExpect
 
+    --- The input manager
     this.inputMan = inputsManager
+    --- The input index
     this.inputIdx = inputIdx
 
     this.p1Ports = p1Ports
     this.isActive = false
 end)
 
+--- Check wherever the tile at the map is the one expected by the neuron
+--- If it is, it presses the button to which it is map to
 function Neuron:check()
     self.isActive = false
     if (self.map[self.tileMapY][self.tileMapX]:contains(self.tileContentExpect)) then

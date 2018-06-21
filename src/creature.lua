@@ -17,7 +17,7 @@ function Creature:updateNeurons()
     for _, v in pairs(inputsNes) do
         self.p1.fields[v]:set_value(0)
     end
-
+    -- Neuron them self press any button they are map to if needed
     for _, v in pairs(self.neurons) do
         v:check()
     end
