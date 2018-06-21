@@ -6,15 +6,24 @@
 
 require("class")
 
-Neuron = class(function(this, tileKind, tileToMarioXOffset, tileY, input)
-    this.tileKind = tileKind
-    this.x = tileToMarioXOffset
-    this.y = tileY
-    this.input = input
+Neuron = class(function(this, tile, inputsManager, inputIdx)
+    this.tile = tile
+    this.inputMan = inputsManager
+    this.inputIdx = inputIdx
 end)
+
+function Neuron:draw(screen)
+    local tileX = self.tile:getDrawCenterX()
+    local tileY = self.tile:getDrawCenterY()
+
+    local inputX = self.inputMan:getDrawCenterX(self.inputIdx)
+    local inputY = self.inputMan:getDrawCenterY(self.inputIdx)
+
+    screen:draw_line(tileX, tileY, inputX, inputY, 0xffffffff)
+end
 
 function Neuron:__tostring()
     local ret = ""
-    ret = ret .. "<" .. self.tileKind .."(" .. self.x .. ", " .. "), " .. self.input .. ">"
+    ret = ret .. "<" .. self.tile .. ", " .. self.input .. ">"
     return ret
 end

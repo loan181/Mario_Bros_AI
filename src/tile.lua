@@ -45,6 +45,14 @@ function Tile:contains(tileVal)
     return false
 end
 
+function Tile:getDrawCenterX()
+    return self.drawX+(self.drawSize/2)
+end
+
+function Tile:getDrawCenterY()
+    return self.drawY+(self.drawSize/2)
+end
+
 --- Draw the tile on the given screen
 function Tile:draw()
     if self.drawScreen == nil then

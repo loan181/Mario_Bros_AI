@@ -11,7 +11,13 @@ Creature = class(function(this, screen, neurons)
     this.neurons = table.clone(neurons)
 end)
 
-function Create:__tostring()
+function Creature:draw()
+    for _, v in pairs(self.neurons) do
+        v:draw(self.drawScreen)
+    end
+end
+
+function Creature:__tostring()
     local ret = ""
     ret = ret .. "Neurons : "
     for _, v in pairs(self.neurons) do

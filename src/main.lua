@@ -11,6 +11,9 @@ package.path = ";LUA\\src\\?.lua;" .. package.path
 local MameCst = require("mameLuaConstants")
 local MameCmd = require("mameCmd")
 require("tile")
+require("inputs")
+require("creature")
+require("neuron")
 
 local inputs = {"P1 Right", "P1 Left", "P1 Down", "P1 Up","P1 Start", "P1 Select", "B", "A"}
 
@@ -198,42 +201,18 @@ local function drawMap()
     end
 end
 
+local inputsManager = Inputs(MameCst.screen, 120, 4, 4, 2, MameCst.ioP1)
+
+local neuron = Neuron(mapFocus[12][10], inputsManager, 1)
+local neuron2 = Neuron(mapFocus[8][10], inputsManager, 5)
+
+
 MameCst.emu.register_frame_done(
     function()
-        local s = MameCst.screen
-
         drawMap()
-
-
-        local function drawInputs()
-            local xOffset = 120
-            local yOffset = 4
-            local squareSize = 4
-            local space = 2
-
-			local currentPressInput = MameCst.ioP1:read()
-
-            for y = 1, #inputs do
-				local bitVal = (2^(#inputs-y))
-				local isPressed = currentPressInput & bitVal == bitVal
-                local yRealOffset = yOffset+y*space+y*squareSize
-
-				local boxColor = 0x80ffffff
-				if isPressed then
-					boxColor = 0xcc000000
-				end
-                s:draw_box(xOffset,
-                        yRealOffset,
-                        xOffset+squareSize,
-                        yRealOffset+squareSize,
-						boxColor,
-                        0xccffffff)
-                s:draw_text(xOffset+squareSize+space+0.5, yRealOffset-2, inputs[y], 0xff000000)
-                s:draw_text(xOffset+squareSize+space, yRealOffset-2, inputs[y])
-            end
-
-        end
-        drawInputs()
+		inputsManager:draw()
+		neuron:draw(MameCst.screen)
+		neuron2:draw(MameCst.screen)
     end
 )
 
