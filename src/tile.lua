@@ -53,11 +53,7 @@ function Tile:getDrawCenterY()
     return self.drawY+(self.drawSize/2)
 end
 
---- Draw the tile on the given screen
-function Tile:draw()
-    if self.drawScreen == nil then
-        return
-    end
+function Tile:getColor()
     local color = 0xddffffff
     local colorTransparency = 0xa0000000
 
@@ -71,13 +67,22 @@ function Tile:draw()
         color = 0x00ffffff
     end
     color = color + colorTransparency
+    return color
+end
+
+--- Draw the tile on the given screen
+function Tile:draw()
+    if self.drawScreen == nil then
+        return
+    end
+
 
     self.drawScreen:draw_box(
             self.drawX,
             self.drawY,
             self.drawX+self.drawSize,
             self.drawY+self.drawSize,
-            color,
+            self:getColor(),
             0xffffffff)
 end
 

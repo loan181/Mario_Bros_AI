@@ -42,10 +42,15 @@ function Neuron:draw(screen)
     local inputX = self.inputMan:getDrawCenterX(self.inputIdx)
     local inputY = self.inputMan:getDrawCenterY(self.inputIdx)
 
+    local desiredTile = Tile()
+    desiredTile:add(self.tileContentExpect)
 
-    local lineColor = 0x7fffffff
+    local lineColor = desiredTile:getColor()
+    lineColor = lineColor & 0x00ffffff -- delete transparency
+    lineColor = lineColor + 0x2f000000
+
     if (self.isActive) then
-        lineColor = lineColor + 0x5f000000
+        lineColor = lineColor + 0x7f000000
     end
 
     screen:draw_line(tileX, tileY, inputX, inputY, lineColor)

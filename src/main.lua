@@ -203,7 +203,9 @@ local inputsManager = Inputs(MameCst.screen, 120, 4, 4, 2, MameCst.ioP1)
 local neuron = Neuron(mapFocus, 10, 12, tileEnum.solidTile, inputsManager, 1, MameCst.ioP1)
 local neuron2 = Neuron(mapFocus, 10, 8, tileEnum.solidTile, inputsManager, 8, MameCst.ioP1)
 local neuron3 = Neuron(mapFocus, 8, 10, tileEnum.solidTile, inputsManager, 8, MameCst.ioP1)
-local creature = Creature(MameCst.screen, {neuron, neuron2,neuron3}, MameCst.ioP1)
+local neuron4 = Neuron(mapFocus, 10, 12, tileEnum.freeTile, inputsManager, 8, MameCst.ioP1)
+local neuron5 = Neuron(mapFocus, 9, 11, tileEnum.enemy, inputsManager, 8, MameCst.ioP1)
+local creature = Creature(MameCst.screen, {neuron, neuron2, neuron3, neuron4, neuron5}, MameCst.ioP1)
 
 MameCst.emu.register_frame(
 		function()
@@ -218,23 +220,4 @@ MameCst.emu.register_frame_done(
 		creature:draw()
 	end
 )
-
---[[
-MameCst.emu.register_frame(
-    function () -- refresh the solid tile table
-        for i=0, tilesH-1 do
-			for j=0, tilesW-1 do
-				tileAdr = tilesStart + (i)*(tilesW/2) + (j)
-				if (j >= 16) then
-					tileAdr = tileAdr + (tilesW/2) * (tilesH-1)
-				end
-				tileVal = MameCmd.readMemory(tileAdr)
-				-- il faudra surement ici faire la  distinction entre différents objets
-				-- ex : pièces etc.
-				tilesSolid[i][j] = tileVal ~= 0
-
-			end
-		end
-    end
-)]]
 
