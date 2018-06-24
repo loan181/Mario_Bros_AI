@@ -102,6 +102,10 @@ function MapView:resetMap()
     end
 end
 
+function MapView:getMarioX()
+    return getMarioX()
+end
+
 function MapView:updateMemoryInformation()
     self.marioX = math.floor(getMarioXInTile())
     self.marioY = math.floor(getMarioYInTile())

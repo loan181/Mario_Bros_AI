@@ -6,7 +6,7 @@
 
 require("class")
 
-Creature = class(function(this, mapFocus, inputsManager, screen, neurons, p1)
+Creature = class(function(this, mapFocus, inputsManager, neurons, screen, p1, textX, textY)
     this.map = mapFocus
     this.inputsManager = inputsManager
     this.p1 = p1
@@ -14,8 +14,11 @@ Creature = class(function(this, mapFocus, inputsManager, screen, neurons, p1)
     this.drawScreen = screen
     this.neurons = neurons -- Make a copy ?
 
-
     this.fitness = 0
+    this.previousMarioX = nil
+
+    this.textX = textX
+    this.textY = textY
 end)
 
 
@@ -49,7 +52,17 @@ function Creature:addNeuron(neuron)
     table.insert(self.neurons, neuron)
 end
 
-function Creature:updateFitness(marioX) end
+function Creature:updateFitness()
+    -- Increase as mario go right
+    local marioX = self.map:getMarioX()
+    if (self.previousMarioX ~= nil) then
+        local difference = marioX-self.previousMarioX
+        if difference > -8 then -- Avoid huge drops on screen changes (warp, level end)
+            self.fitness = self.fitness + difference
+        end
+    end
+    self.previousMarioX = marioX
+end
 
 function Creature:updateNeurons()
     -- Update all input to unpressed
@@ -63,9 +76,15 @@ function Creature:updateNeurons()
 end
 
 function Creature:draw()
+    -- Draw neural network
     for _, v in pairs(self.neurons) do
         v:draw(self.drawScreen)
     end
+
+    -- Other text informations
+    local text = "Fitness : " .. self.fitness
+    self.drawScreen:draw_text(self.textX+0.5, self.textY, text, 0xff000000)
+    self.drawScreen:draw_text(self.textX, self.textY, text, 0xffffffff)
 end
 
 function Creature:__tostring()
