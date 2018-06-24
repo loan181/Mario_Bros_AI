@@ -154,6 +154,15 @@ function MapView:addSolidEntities()
     end
 end
 
+function MapView:getTile(x, y)
+    return self.map[y][x]
+end
+
+--- Does the tiles at (x, y) position contains a tile value
+function MapView:contains(x, y, tile)
+    return self:getTile(x, y):contains(tile)
+end
+
 function MapView:draw()
     for y=1, #self.map do
         for x=1, #self.map[y] do

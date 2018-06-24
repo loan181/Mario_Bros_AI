@@ -28,14 +28,14 @@ end)
 --- If it is, it presses the button to which it is map to
 function Neuron:check()
     self.isActive = false
-    if (self.map[self.tileMapY][self.tileMapX]:contains(self.tileContentExpect)) then
+    if (self.map:contains(self.tileMapX, self.tileMapY, self.tileContentExpect)) then
         self.p1Ports.fields[inputsNes[self.inputIdx]]:set_value(1)
         self.isActive = true
     end
 end
 
 function Neuron:draw(screen)
-    local tile = self.map[self.tileMapY][self.tileMapX]
+    local tile = self.map:getTile(self.tileMapX, self.tileMapY)
     local tileX = tile:getDrawCenterX()
     local tileY = tile:getDrawCenterY()
 
