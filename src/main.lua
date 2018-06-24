@@ -56,21 +56,22 @@ local neuron = Neuron(map, 10, 12, tileEnum.solidTile, inputsManager, 1, MameCst
 --local neuron3 = Neuron(map, 8, 10, tileEnum.solidTile, inputsManager, 8, MameCst.ioP1)
 --local neuron4 = Neuron(map, 10, 12, tileEnum.freeTile, inputsManager, 8, MameCst.ioP1)
 --local neuron5 = Neuron(map, 9, 11, tileEnum.enemy, inputsManager, 8, MameCst.ioP1)
-local creature = Creature(map, inputsManager, {neuron}, MameCst.screen, MameCst.ioP1, 160, 4)
+--local creature = Creature(map, inputsManager, {neuron}, MameCst.screen, MameCst.ioP1, 160, 4)
+
+local creature = nil
 
 local gen = Generation(5, map, inputsManager)
 gen:randomizeAll()
-print(gen)
 
 MameCst.emu.register_frame(
 		function()
+			if (creature == nil or creature:isDead()) then
+				MameCst.machine:load("start")
+				creature = gen:getNextCreature()
+			end
 			map:update()
 			creature:updateFitness()
 			creature:updateNeurons()
-
-			if creature:isDead() then
-				MameCst.machine:load("start")
-			end
 		end
 )
 
@@ -78,7 +79,9 @@ MameCst.emu.register_frame_done(
     function()
 		map:draw()
 		inputsManager:draw()
-		creature:draw()
+		if creature ~= nil then
+			creature:draw()
+		end
 	end
 )
 

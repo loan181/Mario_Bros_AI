@@ -17,6 +17,8 @@ Generation = class(function (this, size, map, inputsManager)
         local randomCreature = Creature(map, inputsManager, {}, MameCst.screen, MameCst.ioP1, 160, 4)
         table.insert(this.creatures, randomCreature)
     end
+
+    this.currentCreatureCounter = 0
 end)
 
 function Generation:randomizeAll()
@@ -25,17 +27,9 @@ function Generation:randomizeAll()
     end
 end
 
-function Generation:testCreatures()
-    for i, v in pairs(self.creatures) do
-        self:testCreature(v)
-    end
-end
-
-function Generation:testCreature(creature)
-    MameCst.machine:load("start")
-    while currentCreature == nil do
-        currentCreature = creature
-    end
+function Generation:getNextCreature()
+    self.currentCreatureCounter = self.currentCreatureCounter + 1
+    return self.creatures[self.currentCreatureCounter]
 end
 
 function Generation:__tostring()
