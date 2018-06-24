@@ -4,6 +4,7 @@
 --- DateTime: 20/06/2018 21:05
 ---
 
+local MameCmd = require("mameCmd")
 require("class")
 
 Creature = class(function(this, mapFocus, inputsManager, neurons, screen, p1, textX, textY)
@@ -21,9 +22,20 @@ Creature = class(function(this, mapFocus, inputsManager, neurons, screen, p1, te
     this.textY = textY
 end)
 
+function Creature:isDead()
+    -- If mario is dead
+    return MameCmd.readMemory(0xE) == 0x0B
+end
+
 
 function Creature:mutate()
 
+end
+
+function Creature:randomize()
+    for i = 1, math.random(20) do
+        self:addRandomNeuron()
+    end
 end
 
 function Creature:getRandomElementOfTable(myTable)

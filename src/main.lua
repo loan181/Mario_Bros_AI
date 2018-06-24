@@ -50,17 +50,22 @@ local map = MapView(6, 6, 13, MameCst.screen, 4, 4, 4)
 local inputsManager = Inputs(MameCst.screen, 120, 4, 4, 2, MameCst.ioP1)
 
 local neuron = Neuron(map, 10, 12, tileEnum.solidTile, inputsManager, 1, MameCst.ioP1)
-local neuron2 = Neuron(map, 10, 8, tileEnum.solidTile, inputsManager, 8, MameCst.ioP1)
-local neuron3 = Neuron(map, 8, 10, tileEnum.solidTile, inputsManager, 8, MameCst.ioP1)
-local neuron4 = Neuron(map, 10, 12, tileEnum.freeTile, inputsManager, 8, MameCst.ioP1)
-local neuron5 = Neuron(map, 9, 11, tileEnum.enemy, inputsManager, 8, MameCst.ioP1)
-local creature = Creature(map, inputsManager, {neuron, neuron2, neuron3, neuron4, neuron5}, MameCst.screen, MameCst.ioP1, 160, 4)
+--local neuron2 = Neuron(map, 10, 8, tileEnum.solidTile, inputsManager, 8, MameCst.ioP1)
+--local neuron3 = Neuron(map, 8, 10, tileEnum.solidTile, inputsManager, 8, MameCst.ioP1)
+--local neuron4 = Neuron(map, 10, 12, tileEnum.freeTile, inputsManager, 8, MameCst.ioP1)
+--local neuron5 = Neuron(map, 9, 11, tileEnum.enemy, inputsManager, 8, MameCst.ioP1)
+local creature = Creature(map, inputsManager, {neuron}, MameCst.screen, MameCst.ioP1, 160, 4)
+
 
 MameCst.emu.register_frame(
 		function()
 			map:update()
 			creature:updateFitness()
-			--creature:updateNeurons()
+			creature:updateNeurons()
+
+			if creature:isDead() then
+				MameCst.machine:load("start")
+			end
 		end
 )
 
@@ -71,4 +76,6 @@ MameCst.emu.register_frame_done(
 		creature:draw()
 	end
 )
+
+
 
