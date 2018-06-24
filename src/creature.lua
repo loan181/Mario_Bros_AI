@@ -82,6 +82,10 @@ function Creature:updateFitness()
     self.previousMarioX = marioX
 end
 
+function Creature:getFitness()
+    return self.fitness
+end
+
 function Creature:updateNeurons()
     -- Update all input to unpressed
     for _, v in pairs(inputsNes) do

@@ -7,8 +7,6 @@ local MameCst = require("mameLuaConstants")
 require("class")
 require("creature")
 
-local currentCreature = nil
-
 Generation = class(function (this, size, map, inputsManager)
     this.creatures = {}
     this.size = size
