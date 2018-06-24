@@ -205,7 +205,7 @@ local neuron2 = Neuron(mapFocus, 10, 8, tileEnum.solidTile, inputsManager, 8, Ma
 local neuron3 = Neuron(mapFocus, 8, 10, tileEnum.solidTile, inputsManager, 8, MameCst.ioP1)
 local neuron4 = Neuron(mapFocus, 10, 12, tileEnum.freeTile, inputsManager, 8, MameCst.ioP1)
 local neuron5 = Neuron(mapFocus, 9, 11, tileEnum.enemy, inputsManager, 8, MameCst.ioP1)
-local creature = Creature(MameCst.screen, {neuron, neuron2, neuron3, neuron4, neuron5}, MameCst.ioP1)
+local creature = Creature(mapFocus, inputsManager, MameCst.screen, {neuron, neuron2, neuron3, neuron4, neuron5}, MameCst.ioP1)
 
 MameCst.emu.register_frame(
 		function()

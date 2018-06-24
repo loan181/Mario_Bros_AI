@@ -6,11 +6,50 @@
 
 require("class")
 
-Creature = class(function(this, screen, neurons, p1)
+Creature = class(function(this, mapFocus, inputsManager, screen, neurons, p1)
+    this.map = mapFocus
+    this.inputsManager = inputsManager
+    this.p1 = p1
+
     this.drawScreen = screen
     this.neurons = neurons -- Make a copy ?
-    this.p1 = p1
+
+
+    this.fitness = 0
 end)
+
+
+function Creature:mutate()
+
+end
+
+function Creature:getRandomElementOfTable(myTable)
+    -- iterate over whole table to get all keys
+    local keyset = {}
+    for k in pairs(myTable) do
+        table.insert(keyset, k)
+    end
+    -- now you can reliably return a random key
+    return myTable[keyset[math.random(#keyset)]]
+end
+
+function Creature:addRandomNeuron()
+    math.randomseed(os.time())
+
+    local randomX = math.random(#self.map[1])
+    local randomY = math.random(#self.map)
+    local randomTile = self:getRandomElementOfTable(tileEnum)
+    local randomInput = math.random(#inputsNes)
+
+    local newNeuron = Neuron(self.map, randomX, randomY, randomTile, self.inputsManager, randomInput, self.p1)
+    self:addNeuron(newNeuron)
+end
+
+function Creature:addNeuron(neuron)
+    table.insert(self.neurons, neuron)
+end
+
+function Creature:updateFitness(marioX) end
 
 function Creature:updateNeurons()
     -- Update all input to unpressed
