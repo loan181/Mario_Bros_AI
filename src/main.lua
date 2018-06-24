@@ -15,6 +15,8 @@ require("inputs")
 require("creature")
 require("neuron")
 require("mapView")
+require("generation")
+
 
 MameCst.machine:load("start")
 
@@ -56,6 +58,9 @@ local neuron = Neuron(map, 10, 12, tileEnum.solidTile, inputsManager, 1, MameCst
 --local neuron5 = Neuron(map, 9, 11, tileEnum.enemy, inputsManager, 8, MameCst.ioP1)
 local creature = Creature(map, inputsManager, {neuron}, MameCst.screen, MameCst.ioP1, 160, 4)
 
+local gen = Generation(5, map, inputsManager)
+gen:randomizeAll()
+print(gen)
 
 MameCst.emu.register_frame(
 		function()

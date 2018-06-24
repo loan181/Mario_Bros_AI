@@ -20,6 +20,9 @@ Creature = class(function(this, mapFocus, inputsManager, neurons, screen, p1, te
 
     this.textX = textX
     this.textY = textY
+
+    -- Random seed is always the same on start, use this counter to have distinct random number
+    this.randomCounter = 0
 end)
 
 function Creature:isDead()
@@ -32,7 +35,9 @@ function Creature:mutate()
 
 end
 
-function Creature:randomize()
+function Creature:randomize(r)
+    self.randomCounter = self.randomCounter + (r+1)*121
+    math.randomseed(os.time() + self.randomCounter)
     for i = 1, math.random(20) do
         self:addRandomNeuron()
     end
@@ -49,15 +54,16 @@ function Creature:getRandomElementOfTable(myTable)
 end
 
 function Creature:addRandomNeuron()
-    math.randomseed(os.time())
+    math.randomseed(os.time() + self.randomCounter)
 
-    local randomX = math.random(#self.map[1])
-    local randomY = math.random(#self.map)
+    local randomX = math.random(self.map:getW())
+    local randomY = math.random(self.map.height)
     local randomTile = self:getRandomElementOfTable(tileEnum)
     local randomInput = math.random(#inputsNes)
 
     local newNeuron = Neuron(self.map, randomX, randomY, randomTile, self.inputsManager, randomInput, self.p1)
     self:addNeuron(newNeuron)
+    self.randomCounter = self.randomCounter + 1
 end
 
 function Creature:addNeuron(neuron)
@@ -103,7 +109,7 @@ function Creature:__tostring()
     local ret = ""
     ret = ret .. "Neurons : "
     for _, v in pairs(self.neurons) do
-        ret = ret .. "\t" .. v .. "\n"
+        ret = ret .. "\t" .. tostring(v) .. "\n"
     end
     return ret
 end

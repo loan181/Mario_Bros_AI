@@ -15,10 +15,15 @@ Generation = class(function (this, size, map, inputsManager)
 
     for i = 1, size do
         local randomCreature = Creature(map, inputsManager, {}, MameCst.screen, MameCst.ioP1, 160, 4)
-        randomCreature:randomize()
         table.insert(this.creatures, randomCreature)
     end
 end)
+
+function Generation:randomizeAll()
+    for i = 1, self.size do
+        self.creatures[i]:randomize(i)
+    end
+end
 
 function Generation:testCreatures()
     for i, v in pairs(self.creatures) do
@@ -33,3 +38,10 @@ function Generation:testCreature(creature)
     end
 end
 
+function Generation:__tostring()
+    local ret = ""
+    for i, v in pairs(self.creatures) do
+        ret = ret .. i .. " : " .. tostring(v) .. "\n"
+    end
+    return ret
+end
