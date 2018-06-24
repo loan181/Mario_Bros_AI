@@ -14,6 +14,7 @@ require("tile")
 require("inputs")
 require("creature")
 require("neuron")
+require("mapView")
 
 MameCst.machine:load("start")
 
@@ -100,6 +101,9 @@ local tilesW = 32
 local tilesH = 13
 -- Petite subtilité qu'il y à une coupure
 -- C'est divisé en 2 tableau de taille 16 x 13 mis de manière contigue
+
+
+local map = MapView(6,6, 13, MameCst.screen, 128, 128, 4)
 
 
 local squareSize = 4
@@ -218,6 +222,8 @@ MameCst.emu.register_frame_done(
         drawMap()
 		inputsManager:draw()
 		creature:draw()
+		map:update()
+		map:draw()
 	end
 )
 
