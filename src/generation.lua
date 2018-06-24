@@ -8,8 +8,10 @@ require("class")
 require("creature")
 
 Generation = class(function (this, size, map, inputsManager)
+    this.generationNumber = 1
     this.creatures = {}
     this.size = size
+    this.creaturesSortedByFitness = {}
 
     for i = 1, size do
         local randomCreature = Creature(map, inputsManager, {}, MameCst.screen, MameCst.ioP1, 160, 4)
@@ -30,8 +32,33 @@ function Generation:getNextCreature()
     return self.creatures[self.currentCreatureCounter]
 end
 
+function Generation:lastCreatureDie()
+    return self.currentCreatureCounter == self.size
+end
+
+function Generation:reGenerate()
+    -- TODO Add/modify creatures
+
+    self.currentCreatureCounter = 0
+    self.generationNumber = self.generationNumber + 1
+end
+
+function Generation:creatureIsDead()
+    local creature = self.creatures[self.currentCreatureCounter]
+    local creatureFitness = creature:getFitness()
+
+    -- TODO : update a sorted (by fitness) list
+
+
+
+    if (self:lastCreatureDie()) then
+        self:reGenerate()
+    end
+end
+
 function Generation:__tostring()
     local ret = ""
+    ret = ret .. "Generation " .. self.generationNumber
     for i, v in pairs(self.creatures) do
         ret = ret .. i .. " : " .. tostring(v) .. "\n"
     end

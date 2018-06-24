@@ -18,7 +18,6 @@ require("mapView")
 require("generation")
 
 
-MameCst.machine:load("start")
 
 function doesTableContain(table, val)
     for _, value in ipairs(table) do
@@ -58,29 +57,29 @@ local neuron = Neuron(map, 10, 12, tileEnum.solidTile, inputsManager, 1, MameCst
 --local neuron5 = Neuron(map, 9, 11, tileEnum.enemy, inputsManager, 8, MameCst.ioP1)
 --local creature = Creature(map, inputsManager, {neuron}, MameCst.screen, MameCst.ioP1, 160, 4)
 
-local gen = Generation(500, map, inputsManager)
+local gen = Generation(5, map, inputsManager)
 gen:randomizeAll()
 
 local creature = gen:getNextCreature()
 local lastFitness = 0
 local timer = 0
 local lastTimeOut = 0
-
+MameCst.machine:load("start")
 
 
 MameCst.emu.register_frame(
 		function()
 			timer = timer + 1
 			-- Go to next creature if dead, or timeout keeping the same fitness
-			local isTimeOut = timer - lastTimeOut >= 60*5 -- 10 seconds of timeout
+			local isTimeOut = timer - lastTimeOut >= 60*3 -- 8 seconds of timeout
 			local curFitness = creature:getFitness()
 			if (creature:isDead() or ( isTimeOut and lastFitness == curFitness)) then
+				gen:creatureIsDead()
 				MameCst.machine:load("start")
 				creature = gen:getNextCreature()
 				lastFitness = 0
 				timer = 0
 				lastTimeOut = 0
-
 			elseif (isTimeOut and lastFitness ~= curFitness) then
 				lastFitness = curFitness
 				lastTimeOut = timer
