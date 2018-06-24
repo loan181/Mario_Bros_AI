@@ -58,29 +58,37 @@ local neuron = Neuron(map, 10, 12, tileEnum.solidTile, inputsManager, 1, MameCst
 --local neuron5 = Neuron(map, 9, 11, tileEnum.enemy, inputsManager, 8, MameCst.ioP1)
 --local creature = Creature(map, inputsManager, {neuron}, MameCst.screen, MameCst.ioP1, 160, 4)
 
-local creature = nil
-local lastFitness = 0
-
 local gen = Generation(500, map, inputsManager)
 gen:randomizeAll()
 
+local creature = gen:getNextCreature()
+local lastFitness = 0
+local timer = 0
+local lastTimeOut = 0
+
+
+
 MameCst.emu.register_frame(
 		function()
+			timer = timer + 1
 			-- Go to next creature if dead, or timeout keeping the same fitness
-			-- TODO : correct the timeout
-			local isTimeOut = math.floor(MameCst.emu.time() % 5) == 0
-			if (creature == nil or creature:isDead() or ( isTimeOut and lastFitness == creature:getFitness())) then
+			local isTimeOut = timer - lastTimeOut >= 60*5 -- 10 seconds of timeout
+			local curFitness = creature:getFitness()
+			if (creature:isDead() or ( isTimeOut and lastFitness == curFitness)) then
 				MameCst.machine:load("start")
 				creature = gen:getNextCreature()
 				lastFitness = 0
-			end
-			if isTimeOut then
-				lastFitness = creature:getFitness()
+				timer = 0
+				lastTimeOut = 0
+
+			elseif (isTimeOut and lastFitness ~= curFitness) then
+				lastFitness = curFitness
+				lastTimeOut = timer
 			end
 
 			map:update()
 			creature:updateFitness()
-			--creature:updateNeurons()
+			creature:updateNeurons()
 		end
 )
 
