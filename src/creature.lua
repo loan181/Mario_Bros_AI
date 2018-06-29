@@ -50,7 +50,8 @@ end
 
 
 function Creature:mutate()
-
+    -- TODO : mutate
+    print("Mutation !!")
 end
 
 

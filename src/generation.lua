@@ -37,8 +37,10 @@ function Generation:randomizeAll()
 end
 
 function Generation:getNextCreature()
-    -- TODO : skip already tested creature
     self.currentCreatureCounter = self.currentCreatureCounter + 1
+    while(self.creatures[self.currentCreatureCounter]:isTested()) do
+        self.currentCreatureCounter = self.currentCreatureCounter + 1
+    end
     return self.creatures[self.currentCreatureCounter]
 end
 

@@ -25,11 +25,7 @@ Neuron = class(function(this, map, tileMapX, tileMapY, tileContentExpect, inputs
 end)
 
 function Neuron:copy()
-    local copyTileContentExpect = {}
-    for i, v in ipairs(self.tileContentExpect) do
-        copyTileContentExpect[i] = v
-    end
-    local neuronCopy = Neuron(self.map, self.tileMapX, self.tileMapY, copyTileContentExpect, self.inputMan, self.inputIdx, self.p1Ports)
+    local neuronCopy = Neuron(self.map, self.tileMapX, self.tileMapY, self.tileContentExpect, self.inputMan, self.inputIdx, self.p1Ports)
     return neuronCopy
 end
 
