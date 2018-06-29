@@ -4,7 +4,9 @@
 --- DateTime: 20/06/2018 21:22
 ---
 
-inputsNes = {"P1 Right", "P1 Left", "P1 Down", "P1 Up","P1 Start", "P1 Select", "B", "A"}
+inputsNes = {"P1 Right", "P1 Left", "P1 Down", "P1 Up", "P1 Start", "P1 Select", "B", "A"}
+
+ignoredInputs = {5, 6} -- ignore select and start presses
 
 Inputs = class(function(this, screen, xOffset, yOffset, squareSize, space, ioP1)
     this.drawScreen = screen
@@ -23,9 +25,12 @@ function Inputs:draw()
 end
 
 function Inputs:isInputPress(inputNesIdx)
-    local currentPressInput = self.ioP1:read()
-    local bitVal = (2^(#inputsNes-inputNesIdx))
-    local isPressed = currentPressInput & bitVal == bitVal
+    local isPressed = false
+    if not doesTableContain(ignoredInputs, inputNesIdx) then
+        local currentPressInput = self.ioP1:read()
+        local bitVal = (2^(#inputsNes-inputNesIdx))
+        isPressed = currentPressInput & bitVal == bitVal
+    end
     return isPressed
 end
 
