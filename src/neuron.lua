@@ -6,6 +6,9 @@
 
 require("class")
 
+local ignoredInputs = {5, 6} -- ignore select and start presses
+
+
 Neuron = class(function(this, map, tileMapX, tileMapY, tileContentExpect, inputsManager, inputIdx, p1Ports)
     --- The map
     this.map = map
@@ -33,7 +36,7 @@ end
 --- If it is, it presses the button to which it is map to
 function Neuron:check()
     self.isActive = false
-    if (self.map:contains(self.tileMapX, self.tileMapY, self.tileContentExpect)) then
+    if (self.map:contains(self.tileMapX, self.tileMapY, self.tileContentExpect) and not doesTableContain(ignoredInputs, self.inputIdx)) then
         self.p1Ports.fields[inputsNes[self.inputIdx]]:set_value(1)
         self.isActive = true
     end

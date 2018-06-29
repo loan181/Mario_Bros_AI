@@ -56,8 +56,6 @@ function Creature:mutate()
 end
 
 
-
-
 function Creature:randomize(r)
     self.randomCounter = self.randomCounter + (r+1)*121
     math.randomseed(os.time() + self.randomCounter)
