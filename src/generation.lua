@@ -68,6 +68,7 @@ end
 
 function Generation:creatureIsDead()
     local creature = self.creatures[self.currentCreatureCounter]
+    creature:setTested() -- The creature was fitness tested
     local creatureFitness = creature:getFitness()
 
     -- TODO : can be optimize using dichotomy (here it's O(size))

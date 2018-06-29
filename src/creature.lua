@@ -51,6 +51,7 @@ end
 
 function Creature:mutate()
     -- TODO : mutate
+    self:randomize(os.time()+12)
     print("Mutation !!")
 end
 
@@ -126,7 +127,7 @@ function Creature:draw()
     end
 
     -- Other text informations
-    local text = "Fitness : " .. self.fitness
+    local text = "Fitness : " .. self.fitness .. " " .. tostring(self.alreadyTested)
     self.drawScreen:draw_text(self.textX+0.5, self.textY, text, 0xff000000)
     self.drawScreen:draw_text(self.textX, self.textY, text, 0xffffffff)
 end
