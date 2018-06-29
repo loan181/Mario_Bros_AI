@@ -38,9 +38,9 @@ function printMatrix(matrix, w, h)
 	end
 end
 
-function printTable(table, len)
+function printTable(table)
 	s = ""
-	for i=1, len do
+	for i=1, #table do
 		s = s .. tostring(table[i]) .. " \t"
 	end
 	print(s)
@@ -57,7 +57,7 @@ local inputsManager = Inputs(MameCst.screen, 120, 4, 4, 2, MameCst.ioP1)
 --local neuron5 = Neuron(map, 9, 11, tileEnum.enemy, inputsManager, 8, MameCst.ioP1)
 --local creature = Creature(map, inputsManager, {neuron, neuron2, neuron3, neuron4}, MameCst.screen, MameCst.ioP1, 160, 4)
 
-local gen = Generation(5, map, inputsManager)
+local gen = Generation(5, map, inputsManager, 160, 4)
 gen:randomizeAll()
 
 local mameController = MameController(map, inputsManager, gen, 3)

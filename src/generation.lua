@@ -7,19 +7,28 @@ local MameCst = require("mameLuaConstants")
 require("class")
 require("creature")
 
-Generation = class(function (this, size, map, inputsManager)
+Generation = class(function (this, size, map, inputsManager, creatureDrawX, creatureDrawY)
     this.generationNumber = 1
     this.creatures = {}
     this.size = size
     this.creaturesSortedByFitness = {}
+    this.creatureDrawX = creatureDrawX
+    this.creatureDrawY = creatureDrawY
 
     for i = 1, size do
-        local randomCreature = Creature(map, inputsManager, {}, MameCst.screen, MameCst.ioP1, 160, 4)
+        local randomCreature = Creature(map, inputsManager, {}, MameCst.screen, MameCst.ioP1, creatureDrawX, creatureDrawY)
         table.insert(this.creatures, randomCreature)
     end
+    this:resetBestFitnessList()
 
     this.currentCreatureCounter = 0
 end)
+
+function Generation:resetBestFitnessList()
+    for i = 1, self.size do
+        self.creaturesSortedByFitness[i] = nil
+    end
+end
 
 function Generation:randomizeAll()
     for i = 1, self.size do
@@ -41,14 +50,22 @@ function Generation:reGenerate()
 
     self.currentCreatureCounter = 0
     self.generationNumber = self.generationNumber + 1
+    self:resetBestFitnessList()
+
 end
 
 function Generation:creatureIsDead()
     local creature = self.creatures[self.currentCreatureCounter]
     local creatureFitness = creature:getFitness()
 
-    -- TODO : update a sorted (by fitness) list
-
+    -- TODO : can be optimize using dichotomy (here it's O(size))
+    local indToInsert = 1
+    for j = 1, #self.creaturesSortedByFitness do
+        if (self.creaturesSortedByFitness[indToInsert] ~= nil and self.creaturesSortedByFitness[indToInsert]:getFitness() < creatureFitness) then
+            indToInsert = indToInsert + 1
+        end
+    end
+    table.insert(self.creaturesSortedByFitness, indToInsert, creature)
 
 
     if (self:lastCreatureDie()) then
@@ -58,9 +75,9 @@ end
 
 function Generation:draw()
     local s = MameCst.screen
-    local textX = 160
-    local textY = 12
-    local text = "Generation : " .. self.generationNumber .. " \tSpecies : " .. self.currentCreatureCounter
+    local textX = self.creatureDrawX
+    local textY = self.creatureDrawY
+    local text = "\nGeneration : " .. self.generationNumber .. " \tSpecies : " .. self.currentCreatureCounter
     s:draw_text(textX+0.5, textY, text, 0xff000000)
     s:draw_text(textX, textY, text, 0xffffffff)
 
