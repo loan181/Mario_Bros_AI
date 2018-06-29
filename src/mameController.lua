@@ -36,9 +36,20 @@ function MameController:registerFrame()
                 -- Go to next creature if dead, or timeout keeping the same fitness
                 local isTimeOut = self.timer - self.lastTimeOut >= 60 * self.timeOutDelay
                 local curFitness = self.creature:getFitness()
-                if (self.creature:isDead() or (isTimeOut and self.lastFitness == curFitness)) then
+                local isCreatureDead = self.creature:isDead()
+                local isNoProgress = isTimeOut and self.lastFitness == curFitness
+                if (isCreatureDead or isNoProgress) then
                     self.gen:creatureIsDead()
                     self:askNextCreature()
+                    if isCreatureDead and isNoProgress then
+                        print("Creature died & timeout")
+                    elseif isCreatureDead then
+                        print("Creature died")
+                    elseif isNoProgress then
+                        print("Creature timeout")
+                    else
+                        print("Creature died for Unknown reason")
+                    end
                 elseif (isTimeOut and self.lastFitness ~= curFitness) then
                     self.lastFitness = curFitness
                     self.lastTimeOut = self.timer

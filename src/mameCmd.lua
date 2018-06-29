@@ -42,4 +42,11 @@ local function createSavestate(name)
 end
 ret.createSavestate = createSavestate
 
+local function showMessage(message)
+    MameCst.machine:popmessage(message)
+end
+ret.showMessage = showMessage
+
+
+
 return ret
