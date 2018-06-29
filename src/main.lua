@@ -57,7 +57,7 @@ local inputsManager = Inputs(MameCst.screen, 120, 4, 4, 2, MameCst.ioP1)
 --local neuron5 = Neuron(map, 9, 11, tileEnum.enemy, inputsManager, 8, MameCst.ioP1)
 --local creature = Creature(map, inputsManager, {neuron, neuron2, neuron3, neuron4}, MameCst.screen, MameCst.ioP1, 160, 4)
 
-local gen = Generation(5, map, inputsManager, 160, 4)
+local gen = Generation(4, map, inputsManager, 160, 4)
 gen:randomizeAll()
 
 local mameController = MameController(map, inputsManager, gen, 3)

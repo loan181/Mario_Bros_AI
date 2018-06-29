@@ -37,6 +37,7 @@ function Generation:randomizeAll()
 end
 
 function Generation:getNextCreature()
+    -- TODO : skip already tested creature
     self.currentCreatureCounter = self.currentCreatureCounter + 1
     return self.creatures[self.currentCreatureCounter]
 end
@@ -46,7 +47,16 @@ function Generation:lastCreatureDie()
 end
 
 function Generation:reGenerate()
-    -- TODO Add/modify creatures
+    -- Assuming the fitness list is sorted, we keep the best first half
+    local sDiv2 = self.size // 2
+    for i = 1, sDiv2 do
+        local bestICreature = self.creaturesSortedByFitness[#self.creaturesSortedByFitness-(i-1)]
+        self.creatures[i] = bestICreature
+
+        local mutatedBestCreature = bestICreature:copy()
+        mutatedBestCreature:mutate()
+        self.creatures[i+sDiv2] = mutatedBestCreature
+    end
 
     self.currentCreatureCounter = 0
     self.generationNumber = self.generationNumber + 1

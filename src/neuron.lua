@@ -24,6 +24,15 @@ Neuron = class(function(this, map, tileMapX, tileMapY, tileContentExpect, inputs
     this.isActive = false
 end)
 
+function Neuron:copy()
+    local copyTileContentExpect = {}
+    for i, v in ipairs(self.tileContentExpect) do
+        copyTileContentExpect[i] = v
+    end
+    local neuronCopy = Neuron(self.map, self.tileMapX, self.tileMapY, copyTileContentExpect, self.inputMan, self.inputIdx, self.p1Ports)
+    return neuronCopy
+end
+
 --- Check wherever the tile at the map is the one expected by the neuron
 --- If it is, it presses the button to which it is map to
 function Neuron:check()

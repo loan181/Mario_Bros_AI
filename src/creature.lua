@@ -23,7 +23,25 @@ Creature = class(function(this, mapFocus, inputsManager, neurons, screen, p1, te
 
     -- Random seed is always the same on start, use this counter to have distinct random number
     this.randomCounter = 0
+    this.alreadyTested = false
 end)
+
+function Creature:copy()
+    local copyNeurons = {}
+    for i, v in ipairs(self.neurons) do
+        copyNeurons[i] = v:copy()
+    end
+    local copyCreature = Creature(self.map, self.inputsManager, copyNeurons, self.drawScreen, self.p1, self.textX, self.textY)
+    return copyCreature
+end
+
+function Creature:setTested()
+    self.alreadyTested = true
+end
+
+function Creature:isTested()
+    return self.alreadyTested
+end
 
 function Creature:isDead()
     -- If mario is dead
@@ -34,6 +52,9 @@ end
 function Creature:mutate()
 
 end
+
+
+
 
 function Creature:randomize(r)
     self.randomCounter = self.randomCounter + (r+1)*121
