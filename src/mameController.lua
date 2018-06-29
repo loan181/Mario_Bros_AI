@@ -59,6 +59,7 @@ function MameController:registerFrameDone()
                 if self.creature ~= nil then
                     self.creature:draw()
                 end
+                self.gen:draw()
             end
     )
 end

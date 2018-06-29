@@ -9,7 +9,6 @@ package.path = ";LUA\\src\\?.lua;" .. package.path
 
 --MarioBros = require("marioBros")
 local MameCst = require("mameLuaConstants")
-local MameCmd = require("mameCmd")
 require("tile")
 require("inputs")
 require("creature")

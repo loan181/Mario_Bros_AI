@@ -56,6 +56,16 @@ function Generation:creatureIsDead()
     end
 end
 
+function Generation:draw()
+    local s = MameCst.screen
+    local textX = 160
+    local textY = 12
+    local text = "Generation : " .. self.generationNumber .. " \tSpecies : " .. self.currentCreatureCounter
+    s:draw_text(textX+0.5, textY, text, 0xff000000)
+    s:draw_text(textX, textY, text, 0xffffffff)
+
+end
+
 function Generation:__tostring()
     local ret = ""
     ret = ret .. "Generation " .. self.generationNumber
